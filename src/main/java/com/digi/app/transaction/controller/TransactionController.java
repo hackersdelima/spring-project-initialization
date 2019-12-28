@@ -8,7 +8,6 @@ import com.digi.app.transaction.entities.TransactionEntity;
 import com.digi.app.transaction.repo.TransactionRepository;
 import com.digi.app.util.Utilities;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -21,45 +20,49 @@ import java.util.List;
 @RestController
 @RequestMapping("transactions")
 public class TransactionController {
-    @Autowired
-    private TransactionRepository transactionRepository;
+    private final TelnetConnectionComponent telnetConnectionComponent;
+    private final TransactionRepository transactionRepository;
+    private final CrudReturnService crudReturnService;
+    private final Utilities utilities;
 
-    @Autowired
-    private CrudReturnService crudReturnService;
-
-    @Autowired
-    private Utilities utilities;
+    public TransactionController(TransactionRepository transactionRepository, CrudReturnService crudReturnService,
+                                 Utilities utilities, TelnetConnectionComponent telnetConnectionComponent) {
+        this.transactionRepository = transactionRepository;
+        this.crudReturnService = crudReturnService;
+        this.utilities = utilities;
+        this.telnetConnectionComponent = telnetConnectionComponent;
+    }
 
     @GetMapping(value = "/create-form")
-    public ModelAndView form() {
+    public final ModelAndView form() {
         ModelAndView modelAndView = new ModelAndView("transaction/transactionForm");
         modelAndView.addObject("pagetitle", "TRANSACTION");
         return modelAndView;
     }
 
     @GetMapping
-    public ResponseEntity<?> transactionsJson() {
+    public final ResponseEntity<?> transactionsJson() {
         List<TransactionEntity> list = transactionRepository.findAll();
         ResponseEntity<?> transactionEntities = crudReturnService.controllerReturnForList(list);
         return transactionEntities;
     }
 
     @GetMapping(path = "/currentUserDatas")
-    public ResponseEntity<?> curUserTransactionsJson(Principal principal) {
+    public final ResponseEntity<?> curUserTransactionsJson(Principal principal) {
         List<TransactionEntity> list = transactionRepository.findByInputter(principal.getName());
         ResponseEntity<?> transactionEntities = crudReturnService.controllerReturnForList(list);
         return transactionEntities;
     }
 
     @GetMapping(value = "/datatable")
-    public ModelAndView datatable() {
+    public final ModelAndView datatable() {
         ModelAndView modelAndView = new ModelAndView("transaction/transactionDatatable");
         modelAndView.addObject("pagetitle", "TRANSACTION");
         return modelAndView;
     }
 
     @PostMapping
-    public ResponseEntity<?> saveTransaction(@RequestBody TransactionEntity transactionEntity, Principal principal) {
+    public final ResponseEntity<?> saveTransaction(@RequestBody TransactionEntity transactionEntity, Principal principal) {
         try {
             TransactionEntity savedTransactionEntity = null;
             String inputter = principal.getName();
@@ -84,7 +87,7 @@ public class TransactionController {
     }
 
     @GetMapping(path = "/{digiTransactionId}")
-    public ResponseEntity<?> getOneTransaction(@PathVariable String digiTransactionId) {
+    public final ResponseEntity<?> getOneTransaction(@PathVariable String digiTransactionId) {
         try {
             TransactionEntity transactionEntity = transactionRepository.findById(digiTransactionId).get();
             if (transactionEntity != null) {
@@ -97,7 +100,7 @@ public class TransactionController {
     }
 
     @DeleteMapping(path = "/{digiTransactionId}")
-    public ResponseEntity<Messages> delete(@PathVariable String digiTransactionId, Principal principal, Authentication authentication) {
+    public final ResponseEntity<Messages> delete(@PathVariable String digiTransactionId, Principal principal, Authentication authentication) {
         TransactionEntity transactionEntity = transactionRepository.findById(digiTransactionId).get();
         if (transactionEntity.getInputter().equals(principal.getName()) || utilities.currentUserRoles(authentication).contains("AUTHORIZER")) {
             if (transactionEntity != null) {
@@ -111,11 +114,8 @@ public class TransactionController {
         }
     }
 
-    @Autowired
-    TelnetConnectionComponent telnetConnectionComponent;
-
     @PostMapping(path = "/authorize/{digiTransactionId}")
-    public ResponseEntity<Messages> authorizeTransaction(@PathVariable String digiTransactionId, Authentication authentication, Principal principal) {
+    public final ResponseEntity<Messages> authorizeTransaction(@PathVariable String digiTransactionId, Authentication authentication, Principal principal) {
         if (digiTransactionId != null && utilities.currentUserRoles(authentication).contains("AUTHORIZER")) {
             TransactionEntity transactionEntity = transactionRepository.findById(digiTransactionId).get();
             if (!transactionEntity.getInputter().equals(principal.getName())) {

@@ -13,6 +13,7 @@
 
 			<!-- start: header -->
 			<header class="header">
+
 				<div class="logo-container">
 					<a href=".." class="logo">
 						<img src="" height="35" alt="Admin" />
@@ -24,7 +25,7 @@
 			
 				<!-- start: search & user box -->
 				<div class="header-right">
-			
+			<h5 class="pull-left">Agricultural Development Bank Ltd.</h5>
 					<form action="pages-search-results.html" class="search nav-form">
 						<div class="input-group input-search">
 							<input type="text" class="form-control" name="q" id="q" placeholder="Search...">
