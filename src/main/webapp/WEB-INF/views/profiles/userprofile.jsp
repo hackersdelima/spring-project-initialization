@@ -23,8 +23,8 @@
 
 				<hr class="dotted short">
 
-				<h6 class="text-muted">Tasks</h6>
-				<p>Display something regarding projects and work to do</p>
+				<h6 class="text-muted">ADBL</h6>
+				<p>Agricultural Development Bank Ltd.</p>
 				<div class="clearfix">
 					<a class="text-uppercase text-muted pull-right" href="#">(View
 						All)</a>
