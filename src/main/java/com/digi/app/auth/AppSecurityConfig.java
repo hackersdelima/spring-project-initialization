@@ -31,7 +31,7 @@ public class AppSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        String[] adminPathsArray = new String[]{"/users/**", "/staffs/**", "/office/**"};
+        String[] adminPathsArray = new String[]{"/staffs/**", "/office/**"};
         String[] authorizerPathsArray = new String[]{"/authorize/**"};
         http
                 .csrf().disable()
