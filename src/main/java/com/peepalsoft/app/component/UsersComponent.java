@@ -1,38 +1,42 @@
 package com.peepalsoft.app.component;
 
-import java.util.List;
-
+import com.peepalsoft.app.entity.Office;
+import com.peepalsoft.app.entity.Users;
+import com.peepalsoft.app.repo.UsersRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
-import com.peepalsoft.app.entity.Office;
-import com.peepalsoft.app.entity.Users;
-import com.peepalsoft.app.repo.UsersRepo;
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Component
 public class UsersComponent {
-	@Autowired
-	UsersRepo usersRepo;
-	
-	@Autowired
-	CrudReturnService<Users> crudReturnService;
+    @Autowired
+    UsersRepo usersRepo;
 
-	public List<Users> findUsersByCurrentUsersStaffsOffice(String currentUsername) {
-		Office currentUserOffice = findOfficeByCurrentUsers(currentUsername);
-		// if role admin find all
-		List<Users> list = usersRepo.findByStaffsOffice(currentUserOffice);
-		return list;
-	}
-	
-	public ResponseEntity<?> getReturn(List<Users> list){
-		ResponseEntity<?> returntype = crudReturnService.controllerReturnForList(list);
-		return returntype;
-	}
+    @Autowired
+    CrudReturnService<Users> crudReturnService;
 
-	public Office findOfficeByCurrentUsers(String currentUsername) {
-		Users currentUser = usersRepo.findByUsername(currentUsername);
-		Office currentUserOffice = currentUser.getStaffs().getOffice();
-		return currentUserOffice;
-	}
+    public List<Users> findUsersByCurrentUsersStaffsOffice(String currentUsername) {
+        Office currentUserOffice = findOfficeByCurrentUsers(currentUsername);
+        // if role admin find all
+        List<Users> list = usersRepo.findByStaffsOffice(currentUserOffice);
+        return list;
+    }
+
+    public ResponseEntity<?> getReturn(List<Users> list) {
+        ResponseEntity<?> returntype = crudReturnService.controllerReturnForList(list);
+        return returntype;
+    }
+
+    public Office findOfficeByCurrentUsers(String currentUsername) {
+        Optional<Users> currentUserOptional = usersRepo.findByUsername(currentUsername);
+        AtomicReference<Office> currentUserOffice = new AtomicReference<>(new Office());
+        currentUserOptional.ifPresent(users -> {
+            currentUserOffice.set(users.getStaffs().getOffice());
+        });
+        return currentUserOffice.get();
+    }
 }

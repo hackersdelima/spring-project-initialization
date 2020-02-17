@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.Collection;
+import java.util.Optional;
 
 /*
 POWERED BY PEEPALSOFT - SHISHIR KARKI
@@ -24,13 +25,13 @@ public class MyUserDetailService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Users user = usersRepo.findByUsername(username);
+        Optional<Users> usersOptional = usersRepo.findByUsername(username);
 
-        if (user == null)
+        if (!usersOptional.isPresent())
             throw new UsernameNotFoundException("User 404");
         //using spring security's User class instead of UserPrincipal
-        return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(),
-                getAuthorities(user));
+        return new org.springframework.security.core.userdetails.User(usersOptional.get().getUsername(), usersOptional.get().getPassword(),
+                getAuthorities(usersOptional.get()));
     }
 
     //get name of roles

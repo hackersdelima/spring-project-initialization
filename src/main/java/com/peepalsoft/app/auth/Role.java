@@ -1,7 +1,7 @@
 package com.peepalsoft.app.auth;
 
-import com.peepalsoft.app.entity.Users;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.peepalsoft.app.entity.Users;
 
 import javax.persistence.*;
 import java.util.Collection;
@@ -14,7 +14,7 @@ public class Role {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+    private int id;
 
     private String name;
 
@@ -22,11 +22,11 @@ public class Role {
     @ManyToMany(mappedBy = "roles", fetch = FetchType.EAGER)
     private Collection<Users> users;
 
-    public Long getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(int id) {
         this.id = id;
     }
 

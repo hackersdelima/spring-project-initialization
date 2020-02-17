@@ -16,7 +16,7 @@ public class Utilities {
     UsersRepo usersRepo;
 
     public List<String> currentUserRoles(Principal principal){
-       Collection<Role> roles=usersRepo.findByUsername(principal.getName()).getRoles();
+       Collection<Role> roles=usersRepo.findByUsername(principal.getName()).get().getRoles();
        List<String> rolesList=new ArrayList<>();
        for(Role role: roles){
            rolesList.add(role.getName());

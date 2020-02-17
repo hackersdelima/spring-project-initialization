@@ -12,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.util.Optional;
+
 @RestController
 @RequestMapping("users")
 public class UserController {
@@ -52,10 +54,10 @@ public class UserController {
     @GetMapping(path = "/{username}")
     public ResponseEntity<?> readOne(@PathVariable String username) {
         try {
-            Users users = usersRepo.findByUsername(username);
+            Optional<Users> usersOptional = usersRepo.findByUsername(username);
 
-            if (users != null) {
-                return new ResponseEntity<Users>(users, HttpStatus.ACCEPTED);
+            if (usersOptional.isPresent()) {
+                return new ResponseEntity<Users>(usersOptional.get(), HttpStatus.ACCEPTED);
             }
         } catch (Exception e) {
             System.out.println(e);

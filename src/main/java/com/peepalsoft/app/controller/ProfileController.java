@@ -17,6 +17,8 @@ import org.springframework.web.servlet.ModelAndView;
 
 import java.util.Base64;
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 
 @RestController
 @RequestMapping("/userprofiles")
@@ -73,8 +75,11 @@ public class ProfileController {
 
     public Users getCurrentUser(Authentication authentication) {
         String current_username = authentication.getName();
-        Users current_user = usersRepo.findByUsername(current_username);
-        return current_user;
+        Optional<Users> current_userOptional = usersRepo.findByUsername(current_username);
+        if (current_userOptional.isPresent()) {
+            return current_userOptional.get();
+        }
+        return new Users();
     }
 
     @PostMapping(path = "/change-password")
@@ -85,8 +90,12 @@ public class ProfileController {
 
         if (confirmPassword.equals(newPassword)) {
             String username = authentication.getName();
-            Users currentUser = usersRepo.findByUsername(username);
-            String userpassword = currentUser.getPassword();
+            Optional<Users> currentUserOptional = usersRepo.findByUsername(username);
+            AtomicReference<Users> currentUser = new AtomicReference<>(new Users());
+            currentUserOptional.ifPresent(users1 ->
+                    currentUser.set(users1)
+            );
+            String userpassword = currentUser.get().getPassword();
 
             String oldpassword = users.getPassword();
             BCryptPasswordEncoder encode = new BCryptPasswordEncoder();
@@ -94,9 +103,9 @@ public class ProfileController {
             if (encode.matches(oldpassword, userpassword)) {
 
                 String newencodedPassword = encode.encode(newPassword);
-                currentUser.setPassword(newencodedPassword);
+                currentUser.get().setPassword(newencodedPassword);
 
-                usersRepo.save(currentUser);
+                usersRepo.save(currentUser.get());
                 return new ResponseEntity<Messages>(HttpResponses.created(currentUser), HttpStatus.CREATED);
             } else {
                 return new ResponseEntity<Messages>(HttpResponses.invalidPassword(), HttpStatus.BAD_REQUEST);
@@ -136,10 +145,13 @@ public class ProfileController {
     @GetMapping(path = "/colleagues")
     public ResponseEntity<?> colleaguesList(Authentication authentication) {
         String currentUsername = authentication.getName();
-        Users user = usersRepo.findByUsername(currentUsername);
-        Office office = user.getStaffs().getOffice();
+        Optional<Users> usersOptional = usersRepo.findByUsername(currentUsername);
+        AtomicReference<Office> office = new AtomicReference<>(new Office());
+        usersOptional.ifPresent(users -> {
+            office.set(users.getStaffs().getOffice());
+        });
 
-        List<Staffs> list = staffsRepo.findByOffice(office);
+        List<Staffs> list = staffsRepo.findByOffice(office.get());
 
         if (list != null) {
             if (list.size() > 0) {
